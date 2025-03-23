@@ -83,7 +83,6 @@ public class Boss {
         for (String keyword : config.getKeywords()) {
             int page = 1;
             int noJobPages = 0;
-            int lastSize = -1;
             String url = searchUrl + "&page=" + page + "&query=" + keyword;
             log.info("开始投递第一页，页面url：{}", url);
             CHROME_DRIVER.get(url);

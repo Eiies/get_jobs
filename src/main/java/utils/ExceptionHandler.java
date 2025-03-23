@@ -114,10 +114,10 @@ public class ExceptionHandler {
             Function<Exception, T> otherExceptionHandler) {
         try {
             return operation.call();
-        } catch (ConnectException | IOException e) {
+        } catch (IOException e) {
             log.error("网络连接异常: {}", e.getMessage());
             return networkExceptionHandler.apply(e);
-        } catch (SocketTimeoutException | TimeoutException | WebDriverException e) {
+        } catch (WebDriverException e) {
             log.error("操作超时: {}", e.getMessage());
             return timeoutExceptionHandler.apply(e);
         } catch (Exception e) {

@@ -173,10 +173,10 @@ public class UIHelper {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            
+
             // 创建空的日志数组
-            String initialLog = "[]"; 
-            
+            String initialLog = "[]";
+
             // 写入文件
             try (FileWriter writer = new FileWriter(LOG_FILE)) {
                 writer.write(initialLog);
@@ -188,6 +188,7 @@ public class UIHelper {
 
     /**
      * 添加日志条目
+     * 
      * @param message 日志消息
      */
     private static void addLogEntry(String message) {
@@ -197,18 +198,40 @@ public class UIHelper {
             if (Files.exists(Paths.get(LOG_FILE))) {
                 logContent = new String(Files.readAllBytes(Paths.get(LOG_FILE)));
             }
-            
+
             // 如果是空文件或格式不正确，初始化为空数组
             if (logContent.trim().isEmpty()) {
                 logContent = "[]";
             }
-            
+
             // 移除结尾的 ]
             if (logContent.endsWith("]")) {
                 logContent = logContent.substring(0, logContent.length() - 1);
             } else {
                 logContent = "[";
             }
-            
+
             // 添加新条目
-            String timestamp = new SimpleDateFormat("yyyy-MM-
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
+            // 添加逗号（如果不是第一个条目）
+            if (!logContent.equals("[")) {
+                logContent += ",";
+            }
+
+            // 添加新的日志条目
+            logContent += String.format("\n  {\"timestamp\": \"%s\", \"message\": \"%s\"}",
+                    timestamp, message.replace("\"", "\\\""));
+
+            // 添加结束的 ]
+            logContent += "\n]";
+
+            // 写入文件
+            try (FileWriter writer = new FileWriter(LOG_FILE)) {
+                writer.write(logContent);
+            }
+        } catch (IOException e) {
+            log.error("添加日志条目失败: {}", e.getMessage());
+        }
+    }
+}
