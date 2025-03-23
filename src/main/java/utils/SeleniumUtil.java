@@ -9,10 +9,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.gargoylesoftware.htmlunit.javascript.background.JavaScriptExecutor;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -29,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 import static utils.Constant.*;
 
 /**
- * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * @author loks666 项目链接:
+ *         <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 public class SeleniumUtil {
     private static final Logger log = LoggerFactory.getLogger(SeleniumUtil.class);
@@ -51,7 +52,8 @@ public class SeleniumUtil {
         switch (osType) {
             case "windows":
                 options.setBinary("C:/Program Files/Google/Chrome/Application/chrome.exe");
-                System.setProperty("webdriver.chrome.driver", "src/main/resources/chromedriver.exe");
+                System.setProperty("webdriver.chrome.driver",
+                        "src/main/resources/chromedriver.exe");
                 break;
             case "mac":
                 options.setBinary("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
@@ -59,7 +61,8 @@ public class SeleniumUtil {
                 break;
             case "linux":
                 options.setBinary("/usr/bin/google-chrome-stable");
-                System.setProperty("webdriver.chrome.driver", "src/main/resources/chromedriver-linux64/chromedriver");
+                System.setProperty("webdriver.chrome.driver",
+                        "src/main/resources/chromedriver-linux64/chromedriver");
                 break;
             default:
                 log.info("你这什么破系统，没见过，别跑了!");
@@ -71,11 +74,12 @@ public class SeleniumUtil {
         } else {
             options.addArguments("--disable-extensions");
         }
-        GraphicsDevice[] screens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+        GraphicsDevice[] screens =
+                GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
         if (screens.length > 1) {
-            options.addArguments("--window-position=2800,1000"); //将窗口移动到副屏的起始位置
+            options.addArguments("--window-position=2800,1000"); // 将窗口移动到副屏的起始位置
         }
-//        options.addArguments("--headless"); //使用无头模式
+        // options.addArguments("--headless"); //使用无头模式
         CHROME_DRIVER = new ChromeDriver(options);
         CHROME_DRIVER.manage().window().maximize();
     }
@@ -87,7 +91,8 @@ public class SeleniumUtil {
         if (osName.contains("linux")) {
             return "linux";
         }
-        if (osName.contains("mac") || osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
+        if (osName.contains("mac") || osName.contains("nix") || osName.contains("nux")
+                || osName.contains("aix")) {
             return "mac";
         }
         return "unknown";
@@ -119,7 +124,7 @@ public class SeleniumUtil {
     private static void saveCookieToFile(JSONArray jsonArray, String path) {
         // 将JSONArray写入到一个文件中
         try (FileWriter file = new FileWriter(path)) {
-            file.write(jsonArray.toString(4));  // 使用4个空格的缩进
+            file.write(jsonArray.toString(4)); // 使用4个空格的缩进
             log.info("Cookie已保存到文件：{}", path);
         } catch (IOException e) {
             log.error("保存cookie异常！保存路径:{}", path);
@@ -129,7 +134,7 @@ public class SeleniumUtil {
     private static void updateCookieFile(JSONArray jsonArray, String path) {
         // 将JSONArray写入到一个文件中
         try (FileWriter file = new FileWriter(path)) {
-            file.write(jsonArray.toString(4));  // 使用4个空格的缩进
+            file.write(jsonArray.toString(4)); // 使用4个空格的缩进
             log.info("cookie文件更新：{}", path);
         } catch (IOException e) {
             log.error("更新cookie异常！保存路径:{}", path);
@@ -165,13 +170,8 @@ public class SeleniumUtil {
                 boolean isSecure = jsonObject.getBoolean("isSecure");
                 boolean isHttpOnly = jsonObject.getBoolean("isHttpOnly");
                 // 使用这些信息来创建新的Cookie对象，并将它们添加到WebDriver中
-                Cookie cookie = new Cookie.Builder(name, value)
-                        .domain(domain)
-                        .path(path)
-                        .expiresOn(expiry)
-                        .isSecure(isSecure)
-                        .isHttpOnly(isHttpOnly)
-                        .build();
+                Cookie cookie = new Cookie.Builder(name, value).domain(domain).path(path)
+                        .expiresOn(expiry).isSecure(isSecure).isHttpOnly(isHttpOnly).build();
                 try {
                     CHROME_DRIVER.manage().addCookie(cookie);
                 } catch (Exception ignore) {
@@ -208,25 +208,130 @@ public class SeleniumUtil {
         }
     }
 
+    /**
+     * 查找元素，带有重试机制和详细错误日志
+     * 
+     * @param xpath 元素的xpath
+     * @param message 错误信息
+     * @return 找到的元素，如果未找到则返回空
+     */
     public static Optional<WebElement> findElement(String xpath, String message) {
-        try {
-            return Optional.of(CHROME_DRIVER.findElement(By.xpath(xpath)));
-        } catch (Exception e) {
-            log.error(message);
-            return Optional.empty();
+        int maxRetries = 3;
+        int retryCount = 0;
+        Exception lastException = null;
+
+        while (retryCount < maxRetries) {
+            try {
+                WebElement element = CHROME_DRIVER.findElement(By.xpath(xpath));
+                if (retryCount > 0) {
+                    log.info("成功找到元素，重试次数: {}", retryCount);
+                }
+                return Optional.of(element);
+            } catch (Exception e) {
+                lastException = e;
+                retryCount++;
+                if (retryCount < maxRetries) {
+                    log.warn("查找元素失败，正在重试 ({}/{}): {}", retryCount, maxRetries, e.getMessage());
+                    sleep(1); // 重试前等待1秒
+                }
+            }
         }
+
+        log.error("{}，重试{}次后失败: {}", message, maxRetries, lastException.getMessage());
+        return Optional.empty();
     }
 
-    public static void click(By by) {
-        try {
-            CHROME_DRIVER.findElement(by).click();
-        } catch (Exception e) {
-            log.error("click element:{}", by, e);
+    /**
+     * 点击元素，带有重试机制和详细错误日志
+     * 
+     * @param by 元素定位器
+     * @return 点击是否成功
+     */
+    public static boolean click(By by) {
+        int maxRetries = 3;
+        int retryCount = 0;
+        Exception lastException = null;
+
+        while (retryCount < maxRetries) {
+            try {
+                WebElement element = CHROME_DRIVER.findElement(by);
+                if (!element.isDisplayed() || !element.isEnabled()) {
+                    log.warn("元素不可见或不可点击，等待1秒后重试");
+                    sleep(1);
+                    retryCount++;
+                    continue;
+                }
+
+                element.click();
+                if (retryCount > 0) {
+                    log.info("成功点击元素，重试次数: {}", retryCount);
+                }
+                return true;
+            } catch (Exception e) {
+                lastException = e;
+                retryCount++;
+                if (retryCount < maxRetries) {
+                    log.warn("点击元素失败，正在重试 ({}/{}): {}", retryCount, maxRetries, e.getMessage());
+                    sleep(1); // 重试前等待1秒
+                }
+            }
         }
+
+        log.error("点击元素{}失败，重试{}次后失败: {}", by, maxRetries, lastException.getMessage());
+        return false;
     }
 
     public static boolean isCookieValid(String cookiePath) {
         return Files.exists(Paths.get(cookiePath));
     }
 
+    /**
+     * 等待元素可见并可点击，带有超时机制
+     * 
+     * @param by 元素定位器
+     * @param timeoutInSeconds 超时时间（秒）
+     * @return 元素是否可见并可点击
+     */
+    public static boolean waitForElementClickable(By by, int timeoutInSeconds) {
+        try {
+            WebDriverWait wait = new WebDriverWait(CHROME_DRIVER, timeoutInSeconds);
+            wait.until(ExpectedConditions.elementToBeClickable(by));
+            return true;
+        } catch (Exception e) {
+            log.error("等待元素{}可点击超时({}秒): {}", by, timeoutInSeconds, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 安全地执行JavaScript，带有错误处理
+     * 
+     * @param script JavaScript代码
+     * @param args 参数
+     * @return 执行结果，如果执行失败则返回null
+     */
+    public static Object executeJavaScript(String script, Object... args) {
+        try {
+            JavaScriptExecutor js = (JavascriptExecutor) CHROME_DRIVER;
+            return js.executeScript(script, args);
+        } catch (Exception e) {
+            log.error("执行JavaScript失败: {}, 脚本: {}", e.getMessage(), script);
+            return null;
+        }
+    }
+
+    /**
+     * 检查页面是否包含特定文本
+     * 
+     * @param text 要检查的文本
+     * @return 页面是否包含该文本
+     */
+    public static boolean pageContainsText(String text) {
+        try {
+            return CHROME_DRIVER.getPageSource().contains(text);
+        } catch (Exception e) {
+            log.error("检查页面文本失败: {}", e.getMessage());
+            return false;
+        }
+    }
 }

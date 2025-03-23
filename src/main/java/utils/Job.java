@@ -5,8 +5,8 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * @author loks666 项目链接:
+ *         <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 @Data
 public class Job implements Serializable {
@@ -57,17 +57,21 @@ public class Job implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("【%s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea, salary, companyTag, recruiter);
+        return String.format("【%s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea, salary,
+                companyTag, recruiter);
     }
 
     public String toString(Platform platform) {
         if (platform == Platform.ZHILIAN) {
-            return String.format("【%s, %s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea, companyTag, salary, recruiter, href);
+            return String.format("【%s, %s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea,
+                    companyTag, salary, recruiter, href);
         }
         if (platform == Platform.BOSS) {
-            return String.format("【%s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea, salary, companyTag, recruiter);
+            return String.format("【%s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea, salary,
+                    companyTag, recruiter);
         }
-        return String.format("【%s, %s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea, salary, companyTag, recruiter, href);
+        return String.format("【%s, %s, %s, %s, %s, %s, %s】", companyName, jobName, jobArea, salary,
+                companyTag, recruiter, href);
     }
 }
 

@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * @author loks666 项目链接:
+ *         <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 @Data
 public class LagouConfig {
@@ -45,7 +45,8 @@ public class LagouConfig {
         // 转换城市编码
         config.setSalary(Objects.equals("不限", config.getSalary()) ? "0" : config.getSalary());
         List<String> scales = config.getScale();
-        config.setScale(scales.stream().map(scale -> "不限".equals(scale) ? "0" : scale).collect(Collectors.toList()));
+        config.setScale(scales.stream().map(scale -> "不限".equals(scale) ? "0" : scale)
+                .collect(Collectors.toList()));
         return config;
     }
 

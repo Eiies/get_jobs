@@ -1,7 +1,7 @@
 ### 驱动配置
 
-driver目前路径：[src/main/resources/chromedriver.exe](src/main/resources/chromedriver.exe)
-，Chrome需要更新到最新版本。  
+driver 目前路径：[src/main/resources/chromedriver.exe](src/main/resources/chromedriver.exe)
+，Chrome 需要更新到最新版本。  
 如启动报错，则是因为版本升级导致，需要更新版本  
 driver 下载链接：https://googlechromelabs.github.io/chrome-for-testing
 
@@ -13,7 +13,7 @@ driver 下载链接：https://googlechromelabs.github.io/chrome-for-testing
 
 <img src="./src/main/resources/images/jdk17.png" alt="jdk17下载页面" width="800" />
 
-安装好后，请保存自己的安装路径，可以在IDEA内配置Java，无须配置环境变量
+安装好后，请保存自己的安装路径，可以在 IDEA 内配置 Java，无须配置环境变量
 
 ### IDEA
 
@@ -68,8 +68,8 @@ Windows 上安装了 Maven，那么你的 Maven 安装目录可能是 `C:\Progra
 
 ### 下载依赖
 
-配置好maven后，IDEA会开始自动下载依赖，等待下载完成且代码没有报红即可运行代码  
-如下图,标记位置为手动刷新：   
+配置好 maven 后，IDEA 会开始自动下载依赖，等待下载完成且代码没有报红即可运行代码  
+如下图,标记位置为手动刷新：  
 ![img.png](src/main/resources/images/maven.png)
 
 ### 运行代码

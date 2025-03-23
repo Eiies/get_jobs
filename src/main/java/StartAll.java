@@ -69,9 +69,8 @@ public class StartAll {
      * @throws Exception 如果发生错误
      */
     private static void executeTask(String className) throws Exception {
-        ProcessBuilder processBuilder = new ProcessBuilder(
-            "java", "-cp", System.getProperty("java.class.path"), className
-        );
+        ProcessBuilder processBuilder =
+                new ProcessBuilder("java", "-cp", System.getProperty("java.class.path"), className);
         processBuilder.inheritIO(); // 将子进程的输入/输出重定向到当前进程
         Process process = processBuilder.start();
         int exitCode = process.waitFor();

@@ -17,9 +17,9 @@ import static utils.Constant.*;
 import static utils.JobUtils.formatDuration;
 
 /**
- * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
- * 前程无忧自动投递简历
+ * @author loks666 项目链接:
+ *         <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ *         前程无忧自动投递简历
  */
 public class Job51 {
     private static final Logger log = LoggerFactory.getLogger(Job51.class);
@@ -28,7 +28,8 @@ public class Job51 {
     static Integer maxPage = 50;
     static String cookiePath = "./src/main/java/job51/cookie.json";
     static String homeUrl = "https://www.51job.com";
-    static String loginUrl = "https://login.51job.com/login.php?lang=c&url=https://www.51job.com/&qrlogin=2";
+    static String loginUrl =
+            "https://login.51job.com/login.php?lang=c&url=https://www.51job.com/&qrlogin=2";
     static String baseUrl = "https://we.51job.com/pc/search?";
     static List<String> resultList = new ArrayList<>();
     static Job51Config config = Job51Config.init();
@@ -44,7 +45,8 @@ public class Job51 {
     }
 
     private static void printResult() {
-        String message = String.format("\n51job投递完成，共投递%d个简历，用时%s", resultList.size(), formatDuration(startDate, new Date()));
+        String message = String.format("\n51job投递完成，共投递%d个简历，用时%s", resultList.size(),
+                formatDuration(startDate, new Date()));
         log.info(message);
         sendMessageByTime(message);
         resultList.clear();
@@ -53,9 +55,8 @@ public class Job51 {
     }
 
     private static String getSearchUrl() {
-        return baseUrl +
-                JobUtils.appendListParam("jobArea", config.getJobArea()) +
-                JobUtils.appendListParam("salary", config.getSalary());
+        return baseUrl + JobUtils.appendListParam("jobArea", config.getJobArea())
+                + JobUtils.appendListParam("salary", config.getSalary());
     }
 
     private static void Login() {
@@ -87,16 +88,20 @@ public class Job51 {
         SeleniumUtil.sleep(1);
 
         // 再次判断是否登录
-        WebElement login = WAIT.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(@class, 'uname')]")));
+        WebElement login = WAIT.until(ExpectedConditions
+                .visibilityOfElementLocated(By.xpath("//a[contains(@class, 'uname')]")));
         if (login != null && isNotNullOrEmpty(login.getText()) && login.getText().contains("登录")) {
             login.click();
-            WAIT.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//i[contains(@class, 'passIcon')]"))).click();
+            WAIT.until(ExpectedConditions
+                    .visibilityOfElementLocated(By.xpath("//i[contains(@class, 'passIcon')]")))
+                    .click();
             log.info("请扫码登录...");
-            WAIT.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class, 'joblist')]")));
+            WAIT.until(ExpectedConditions
+                    .visibilityOfElementLocated(By.xpath("//div[contains(@class, 'joblist')]")));
             SeleniumUtil.saveCookie(cookiePath);
         }
 
-        //由于51更新，每投递一页之前，停止10秒
+        // 由于51更新，每投递一页之前，停止10秒
         SeleniumUtil.sleep(10);
 
         int i = 0;
@@ -108,12 +113,15 @@ public class Job51 {
         for (int j = page; j <= maxPage; j++) {
             while (true) {
                 try {
-                    WebElement mytxt = WAIT.until(ExpectedConditions.visibilityOfElementLocated(By.id("jump_page")));
+                    WebElement mytxt = WAIT.until(
+                            ExpectedConditions.visibilityOfElementLocated(By.id("jump_page")));
                     SeleniumUtil.sleep(5);
                     mytxt.click();
                     mytxt.clear();
                     mytxt.sendKeys(String.valueOf(j));
-                    WAIT.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#app > div > div.post > div > div > div.j_result > div > div:nth-child(2) > div > div.bottom-page > div > div > span.jumpPage"))).click();
+                    WAIT.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(
+                            "#app > div > div.post > div > div > div.j_result > div > div:nth-child(2) > div > div.bottom-page > div > div > span.jumpPage")))
+                            .click();
                     ACTIONS.keyDown(Keys.CONTROL).sendKeys(Keys.HOME).keyUp(Keys.CONTROL).perform();
                     log.info("第 {} 页", j);
                     break;
@@ -145,8 +153,10 @@ public class Job51 {
         if (checkboxes.isEmpty()) {
             return;
         }
-        List<WebElement> titles = CHROME_DRIVER.findElements(By.cssSelector("[class*='jname text-cut']"));
-        List<WebElement> companies = CHROME_DRIVER.findElements(By.cssSelector("[class*='cname text-cut']"));
+        List<WebElement> titles =
+                CHROME_DRIVER.findElements(By.cssSelector("[class*='jname text-cut']"));
+        List<WebElement> companies =
+                CHROME_DRIVER.findElements(By.cssSelector("[class*='cname text-cut']"));
         JavascriptExecutor executor = CHROME_DRIVER;
         for (int i = 0; i < checkboxes.size(); i++) {
             WebElement checkbox = checkboxes.get(i);
@@ -178,31 +188,38 @@ public class Job51 {
 
         try {
             SeleniumUtil.sleep(3);
-            String text = CHROME_DRIVER.findElement(By.xpath("//div[@class='successContent']")).getText();
+            String text =
+                    CHROME_DRIVER.findElement(By.xpath("//div[@class='successContent']")).getText();
             if (text.contains("快来扫码下载~")) {
-                //关闭弹窗
-                CHROME_DRIVER.findElement(By.cssSelector("[class*='van-icon van-icon-cross van-popup__close-icon van-popup__close-icon--top-right']")).click();
+                // 关闭弹窗
+                CHROME_DRIVER.findElement(By.cssSelector(
+                        "[class*='van-icon van-icon-cross van-popup__close-icon van-popup__close-icon--top-right']"))
+                        .click();
             }
         } catch (Exception ignored) {
             log.info("未找到投递成功弹窗！可能为单独投递申请弹窗！");
         }
         String particularly = null;
         try {
-            particularly = CHROME_DRIVER.findElement(By.xpath("//div[@class='el-dialog__body']/span")).getText();
+            particularly = CHROME_DRIVER
+                    .findElement(By.xpath("//div[@class='el-dialog__body']/span")).getText();
         } catch (Exception ignored) {
         }
         if (particularly != null && particularly.contains("需要到企业招聘平台单独申请")) {
-            //关闭弹窗
-            CHROME_DRIVER.findElement(By.cssSelector("#app > div > div.post > div > div > div.j_result > div > div:nth-child(2) > div > div:nth-child(2) > div:nth-child(2) > div > div.el-dialog__header > button > i")).click();
+            // 关闭弹窗
+            CHROME_DRIVER.findElement(By.cssSelector(
+                    "#app > div > div.post > div > div > div.j_result > div > div:nth-child(2) > div > div:nth-child(2) > div:nth-child(2) > div > div.el-dialog__header > button > i"))
+                    .click();
             log.info("关闭单独投递申请弹窗成功！");
         }
     }
 
     private static void findAnomaly() {
         try {
-            String verify = CHROME_DRIVER.findElement(By.xpath("//p[@class='waf-nc-title']")).getText();
+            String verify =
+                    CHROME_DRIVER.findElement(By.xpath("//p[@class='waf-nc-title']")).getText();
             if (verify.contains("验证")) {
-                //关闭弹窗
+                // 关闭弹窗
                 log.error("出现访问验证了！程序退出...");
                 printResult();
                 CHROME_DRIVER.close();

@@ -20,24 +20,21 @@ import java.util.concurrent.TimeUnit;
 import static utils.Constant.UNLIMITED_CODE;
 
 /**
- * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * @author loks666 项目链接:
+ *         <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 @Slf4j
 public class JobUtils {
 
     public static String appendParam(String name, String value) {
-        return Optional.ofNullable(value)
-                .filter(v -> !Objects.equals(UNLIMITED_CODE, v))
-                .map(v -> "&" + name + "=" + v)
-                .orElse("");
+        return Optional.ofNullable(value).filter(v -> !Objects.equals(UNLIMITED_CODE, v))
+                .map(v -> "&" + name + "=" + v).orElse("");
     }
 
     public static String appendListParam(String name, List<String> values) {
         return Optional.ofNullable(values)
                 .filter(list -> !list.isEmpty() && !Objects.equals(UNLIMITED_CODE, list.get(0)))
-                .map(list -> "&" + name + "=" + String.join(",", list))
-                .orElse("");
+                .map(list -> "&" + name + "=" + String.join(",", list)).orElse("");
     }
 
     @SneakyThrows
@@ -86,7 +83,7 @@ public class JobUtils {
      * 计算并格式化时间（毫秒）
      *
      * @param startDate 开始时间
-     * @param endDate   结束时间
+     * @param endDate 结束时间
      * @return 格式化后的时间字符串，格式为 "HH:mm:ss"
      */
     public static String formatDuration(Date startDate, Date endDate) {
@@ -115,23 +112,25 @@ public class JobUtils {
     /**
      * 通用的任务调度方法
      *
-     * @param hour   要设置的小时，0-23之间的整数
+     * @param hour 要设置的小时，0-23之间的整数
      * @param minute 要设置的分钟，0-59之间的整数
      */
     public static void scheduleTaskAtTime(String platform, int hour, int minute, Runnable task) {
-        long delay = getInitialDelay(hour, minute);  // 计算初始延迟
-        String msg = String.format("【%s】距离下次任务投递还有：%s，执行时间：%02d:%02d", platform, formatDuration(delay), hour, minute);
+        long delay = getInitialDelay(hour, minute); // 计算初始延迟
+        String msg = String.format("【%s】距离下次任务投递还有：%s，执行时间：%02d:%02d", platform,
+                formatDuration(delay), hour, minute);
         log.info(msg);
         Bot.sendMessage(msg);
 
         // 安排定时任务，每24小时执行一次
-        Executors.newScheduledThreadPool(4).scheduleAtFixedRate(task, delay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+        Executors.newScheduledThreadPool(4).scheduleAtFixedRate(task, delay,
+                TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
     }
 
     /**
      * 计算从当前时间到指定时间（小时:分钟）的延迟
      *
-     * @param targetHour   目标执行的小时
+     * @param targetHour 目标执行的小时
      * @param targetMinute 目标执行的分钟
      * @return 延迟的秒数
      */
@@ -147,11 +146,11 @@ public class JobUtils {
 
         // 如果当前时间已经过了今天的目标时间，则将任务安排在明天
         if (now.after(nextRun)) {
-            nextRun.add(Calendar.DAY_OF_YEAR, 1);  // 调整为明天
+            nextRun.add(Calendar.DAY_OF_YEAR, 1); // 调整为明天
         }
 
         long currentTime = System.currentTimeMillis();
-        return (nextRun.getTimeInMillis() - currentTime) / 1000;  // 返回秒数
+        return (nextRun.getTimeInMillis() - currentTime) / 1000; // 返回秒数
     }
 
     public static int getRandomNumberInRange(int min, int max) {

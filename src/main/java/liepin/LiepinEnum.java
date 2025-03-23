@@ -4,21 +4,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 /**
- * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * @author loks666 项目链接:
+ *         <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 public class LiepinEnum {
 
     @Getter
     public enum CityCode {
-        NULL("不限", "0"),
-        ALL("全国", "410"),
-        BEIJING("北京", "010"),
-        SHANGHAI("上海", "020"),
-        GUANGZHOU("广州", "050020"),
-        SHENZHEN("深圳", "050090"),
-        CHENGDU("成都", "280020"),
-        TIANJIN("天津", "030");
+        NULL("不限", "0"), ALL("全国", "410"), BEIJING("北京", "010"), SHANGHAI("上海", "020"), GUANGZHOU(
+                "广州",
+                "050020"), SHENZHEN("深圳", "050090"), CHENGDU("成都", "280020"), TIANJIN("天津", "030");
 
         private final String name;
         private final String code;
@@ -37,7 +32,5 @@ public class LiepinEnum {
             }
             return NULL;
         }
-
     }
-
 }

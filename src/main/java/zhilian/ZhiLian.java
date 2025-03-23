@@ -18,8 +18,8 @@ import static utils.Constant.*;
 import static utils.JobUtils.formatDuration;
 
 /**
- * @author loks666
- * 项目链接: <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
+ * @author loks666 项目链接:
+ *         <a href="https://github.com/loks666/get_jobs">https://github.com/loks666/get_jobs</a>
  */
 public class ZhiLian {
     private static final Logger log = LoggerFactory.getLogger(ZhiLian.class);
@@ -43,12 +43,14 @@ public class ZhiLian {
             submitJobs(keyword);
 
         });
-        log.info(resultList.isEmpty() ? "未投递新的岗位..." : "新投递公司如下:\n{}", resultList.stream().map(Object::toString).collect(Collectors.joining("\n")));
+        log.info(resultList.isEmpty() ? "未投递新的岗位..." : "新投递公司如下:\n{}",
+                resultList.stream().map(Object::toString).collect(Collectors.joining("\n")));
         printResult();
     }
 
     private static void printResult() {
-        String message = String.format("\n智联招聘投递完成，共投递%d个岗位，用时%s", resultList.size(), formatDuration(startDate, new Date()));
+        String message = String.format("\n智联招聘投递完成，共投递%d个岗位，用时%s", resultList.size(),
+                formatDuration(startDate, new Date()));
         log.info(message);
         sendMessageByTime(message);
         resultList.clear();
@@ -57,18 +59,17 @@ public class ZhiLian {
     }
 
     private static String getSearchUrl(String keyword, int page) {
-        return homeUrl +
-                JobUtils.appendParam("jl", config.getCityCode()) +
-                JobUtils.appendParam("kw", keyword) +
-                JobUtils.appendParam("sl", config.getSalary()) +
-                "&p=" + page;
+        return homeUrl + JobUtils.appendParam("jl", config.getCityCode())
+                + JobUtils.appendParam("kw", keyword)
+                + JobUtils.appendParam("sl", config.getSalary()) + "&p=" + page;
     }
 
     private static void submitJobs(String keyword) {
         if (isLimit) {
             return;
         }
-        WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'joblist-box__item')]")));
+        WAIT.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[contains(@class, 'joblist-box__item')]")));
         setMaxPages();
         for (int i = 1; i <= maxPage; i++) {
             if (i != 1) {
@@ -77,21 +78,24 @@ public class ZhiLian {
             log.info("开始投递【{}】关键词，第【{}】页...", keyword, i);
             // 等待岗位出现
             try {
-                WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='positionlist']")));
+                WAIT.until(ExpectedConditions
+                        .presenceOfElementLocated(By.xpath("//div[@class='positionlist']")));
             } catch (Exception ignore) {
                 CHROME_DRIVER.navigate().refresh();
                 SeleniumUtil.sleep(1);
             }
             // 全选
             try {
-                WebElement allSelect = WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//i[@class='betch__checkall__checkbox']")));
+                WebElement allSelect = WAIT.until(ExpectedConditions.presenceOfElementLocated(
+                        By.xpath("//i[@class='betch__checkall__checkbox']")));
                 allSelect.click();
             } catch (Exception e) {
                 log.info("没有全选按钮，程序退出...");
                 continue;
             }
             // 投递
-            WebElement submit = WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@class='betch__button']")));
+            WebElement submit = WAIT.until(ExpectedConditions
+                    .presenceOfElementLocated(By.xpath("//button[@class='betch__button']")));
             submit.click();
             if (checkIsLimit()) {
                 break;
@@ -100,9 +104,10 @@ public class ZhiLian {
             // 切换到新的标签页
             ArrayList<String> tabs = new ArrayList<>(CHROME_DRIVER.getWindowHandles());
             CHROME_DRIVER.switchTo().window(tabs.get(tabs.size() - 1));
-            //关闭弹框
+            // 关闭弹框
             try {
-                WebElement result = CHROME_DRIVER.findElement(By.xpath("//div[@class='deliver-dialog']"));
+                WebElement result =
+                        CHROME_DRIVER.findElement(By.xpath("//div[@class='deliver-dialog']"));
                 if (result.getText().contains("申请成功")) {
                     log.info("岗位申请成功！");
                 }
@@ -110,7 +115,8 @@ public class ZhiLian {
                 log.error("关闭投递弹框失败...");
             }
             try {
-                WebElement close = CHROME_DRIVER.findElement(By.xpath("//img[@title='close-icon']"));
+                WebElement close =
+                        CHROME_DRIVER.findElement(By.xpath("//img[@title='close-icon']"));
                 close.click();
             } catch (Exception e) {
                 if (checkIsLimit()) {
@@ -119,12 +125,15 @@ public class ZhiLian {
             }
             try {
                 // 投递相似职位
-                WebElement checkButton = CHROME_DRIVER.findElement(By.xpath("//div[contains(@class, 'applied-select-all')]//input"));
+                WebElement checkButton = CHROME_DRIVER.findElement(
+                        By.xpath("//div[contains(@class, 'applied-select-all')]//input"));
                 if (!checkButton.isSelected()) {
                     checkButton.click();
                 }
-                List<WebElement> jobs = CHROME_DRIVER.findElements(By.xpath("//div[@class='recommend-job']"));
-                WebElement post = CHROME_DRIVER.findElement(By.xpath("//div[contains(@class, 'applied-select-all')]//button"));
+                List<WebElement> jobs =
+                        CHROME_DRIVER.findElements(By.xpath("//div[@class='recommend-job']"));
+                WebElement post = CHROME_DRIVER.findElement(
+                        By.xpath("//div[contains(@class, 'applied-select-all')]//button"));
                 post.click();
                 printRecommendJobs(jobs);
                 log.info("相似职位投递成功！");
@@ -142,7 +151,8 @@ public class ZhiLian {
     private static boolean checkIsLimit() {
         try {
             SeleniumUtil.sleepByMilliSeconds(500);
-            WebElement result = CHROME_DRIVER.findElement(By.xpath("//div[@class='a-job-apply-workflow']"));
+            WebElement result =
+                    CHROME_DRIVER.findElement(By.xpath("//div[@class='a-job-apply-workflow']"));
             if (result.getText().contains("达到上限")) {
                 log.info("今日投递已达上限！");
                 isLimit = true;
@@ -158,19 +168,22 @@ public class ZhiLian {
         try {
             // 到底部
             ACTIONS.keyDown(Keys.CONTROL).sendKeys(Keys.END).keyUp(Keys.CONTROL).perform();
-            WebElement inputElement = CHROME_DRIVER.findElement(By.className("soupager__pagebox__goinp"));
+            WebElement inputElement =
+                    CHROME_DRIVER.findElement(By.className("soupager__pagebox__goinp"));
             inputElement.clear();
             inputElement.sendKeys("99999");
-            //使用 JavaScript 获取输入元素的当前值
+            // 使用 JavaScript 获取输入元素的当前值
             JavascriptExecutor js = CHROME_DRIVER;
-            String modifiedValue = (String) js.executeScript("return arguments[0].value;", inputElement);
+            String modifiedValue =
+                    (String) js.executeScript("return arguments[0].value;", inputElement);
             maxPage = Integer.parseInt(modifiedValue);
             log.info("设置最大页数：{}", maxPage);
             WebElement home = CHROME_DRIVER.findElement(By.xpath("//li[@class='listsort__item']"));
             ACTIONS.moveToElement(home).perform();
         } catch (Exception ignore) {
             StackTraceElement element = Thread.currentThread().getStackTrace()[1];
-            log.info("setMaxPages@设置最大页数异常！({}:{})", element.getFileName(), element.getLineNumber());
+            log.info("setMaxPages@设置最大页数异常！({}:{})", element.getFileName(),
+                    element.getLineNumber());
             log.info("设置默认最大页数50，如有需要请自行调整...");
             maxPage = 50;
         }
@@ -178,19 +191,32 @@ public class ZhiLian {
 
     private static void printRecommendJobs(List<WebElement> jobs) {
         jobs.forEach(j -> {
-            String jobName = j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__position')]")).getText();
-            String salary = j.findElement(By.xpath(".//span[@class='recommend-job__demand__salary']")).getText();
-            String years = j.findElement(By.xpath(".//span[@class='recommend-job__demand__experience']")).getText().replaceAll("\n", " ");
-            String education = j.findElement(By.xpath(".//span[@class='recommend-job__demand__educational']")).getText().replaceAll("\n", " ");
-            String companyName = j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__cname')]")).getText();
-            String companyTag = j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__demand__cinfo')]")).getText().replaceAll("\n", " ");
+            String jobName =
+                    j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__position')]"))
+                            .getText();
+            String salary =
+                    j.findElement(By.xpath(".//span[@class='recommend-job__demand__salary']"))
+                            .getText();
+            String years =
+                    j.findElement(By.xpath(".//span[@class='recommend-job__demand__experience']"))
+                            .getText().replaceAll("\n", " ");
+            String education =
+                    j.findElement(By.xpath(".//span[@class='recommend-job__demand__educational']"))
+                            .getText().replaceAll("\n", " ");
+            String companyName =
+                    j.findElement(By.xpath(".//*[contains(@class, 'recommend-job__cname')]"))
+                            .getText();
+            String companyTag = j
+                    .findElement(By.xpath(".//*[contains(@class, 'recommend-job__demand__cinfo')]"))
+                    .getText().replaceAll("\n", " ");
             Job job = new Job();
             job.setJobName(jobName);
             job.setSalary(salary);
             job.setCompanyTag(companyTag);
             job.setCompanyName(companyName);
             job.setJobInfo(years + "·" + education);
-            log.info("投递【{}】公司【{}】岗位，薪资【{}】，要求【{}·{}】，规模【{}】", companyName, jobName, salary, years, education, companyTag);
+            log.info("投递【{}】公司【{}】岗位，薪资【{}】，要求【{}·{}】，规模【{}】", companyName, jobName, salary, years,
+                    education, companyTag);
             resultList.add(job);
         });
     }
@@ -209,10 +235,12 @@ public class ZhiLian {
 
     private static void scanLogin() {
         try {
-            WebElement button = CHROME_DRIVER.findElement(By.xpath("//div[@class='zppp-panel-normal-bar__img']"));
+            WebElement button = CHROME_DRIVER
+                    .findElement(By.xpath("//div[@class='zppp-panel-normal-bar__img']"));
             button.click();
             log.info("等待扫码登录中...");
-            WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='zp-main__personal']")));
+            WAIT.until(ExpectedConditions
+                    .presenceOfElementLocated(By.xpath("//div[@class='zp-main__personal']")));
             log.info("扫码登录成功！");
             SeleniumUtil.saveCookie("./src/main/java/zhilian/cookie.json");
         } catch (Exception e) {
